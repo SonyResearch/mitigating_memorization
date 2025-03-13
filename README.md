@@ -1,4 +1,11 @@
-# Classifier-Free Guidance inside the Attraction Basin May Cause Memorization
+# [Classifier-Free Guidance inside the Attraction Basin May Cause Memorization](https://arxiv.org/abs/2411.16738)
+
+[Anubhav Jain](http://anubhav1997.github.io/), [Yuya Kobayashi](https://scholar.google.co.jp/citations?hl=ja&user=BhKHVqQAAAAJ&view_op=list_works&sortby=pubdate), [Takashi Shibuya](https://scholar.google.com/citations?user=XCRO260AAAAJ), [Yuhta Takida](https://scholar.google.co.jp/citations?user=ahqdEYUAAAAJ&hl=ja), [Nasir Memon](https://engineering.nyu.edu/faculty/nasir-memon), [Julian Togelius](https://engineering.nyu.edu/faculty/julian-togelius), [Yuki Mitsufuji](https://www.yukimitsufuji.com/)
+
+New York University, Sony AI, and Sony Group Corporation
+
+CVPR 2025
+
 
 This repository contains the official codebase for the paper "Classifier-Free Guidance inside the Attraction Basin May Cause Memorization". We provide an approach to mitigate memorization in conditional diffusion models during inference. 
 
