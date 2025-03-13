@@ -17,11 +17,79 @@ from scipy.signal import argrelextrema
 import time 
 from local_sd_pipeline import LocalStableDiffusionPipeline
 import matplotlib.pyplot as plt 
-
 import glob 
+import argparse
 
+def parse_args():
+    
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument(
+        "--use_json",
+        type=bool,
+        default=True,
+    )
+    parser.add_argument(
+        "--pretrained_model_name_or_path",
+        type=str,
+        default="CompVis/stable-diffusion-v1-4",
+    )
+    parser.add_argument(
+        "--unet_path",
+        type=str,
+        default="CompVis/stable-diffusion-v1-4",
+    )
+    parser.add_argument(
+        "--start_iter",
+        type=int,
+        default=0,
+    )
+    parser.add_argument(
+        "--end_iter",
+        type=int,
+        default=200,
+    )
+    parser.add_argument(
+        "--outdir",
+        type=str,
+        default="output",
+    )
+    parser.add_argument(
+        "--guidance_scale",
+        type=float,
+        default=7.5,
+    )
+    parser.add_argument(
+        "--CFG_scheduling",
+        type=str,
+        default="static",
+    )
+    parser.add_argument(
+        "--scheduler",
+        type=str,
+        default="DPM",
+    )
+    parser.add_argument(
+        "--img_size",
+        type=int,
+        default=512,
+    )
+    parser.add_argument(
+        "--exp",
+        type=str,
+        default="sdv1_pretrained",
+    )
+    # parser.add_argument(
+    #     "--prompt_json",
+    #     type=str,
+    #     default='/scratch/aj3281/DCR/DCR/data/laion_10k_random/laion_combined_captions.json',
+    # )
+    return parser.parse_args()
+    
+args = parse_args()
 
-pretrained_path = "CompVis/stable-diffusion-v1-4"
+pretrained_path = args.pretrained_model_name_or_path
+
+# pretrained_path = "CompVis/stable-diffusion-v1-4"
 
 vae = AutoencoderKL.from_pretrained(pretrained_path, subfolder="vae"#, use_safetensors=True
                                    ) #stabilityai/stable-diffusion-2-1
@@ -32,7 +100,7 @@ text_encoder = CLIPTextModel.from_pretrained(
 scheduler = DPMSolverMultistepScheduler.from_pretrained(pretrained_path, subfolder="scheduler")  #KarrasVeScheduler.from_pretrained("CompVis/stable-diffusion-v1-4")
 
 
-unet_path = "checkpoint-20000/unet"
+unet_path = args.unet_path #"checkpoint-20000/unet"
 
 unet = UNet2DConditionModel.from_pretrained(
             unet_path,
@@ -46,20 +114,19 @@ unet.to(torch_device)
 # pipe = pipe.to(device)
 
 
-height = 512 #256 # default height of Stable Diffusion
-width = 512 #256  # default width of Stable Diffusion
+height = args.img_size
+width = args.img_size
 num_inference_steps = 50  # Number of denoising steps
 guidance_scale = 7.5 #7.5 # Scale for classifier-free guidance
 generator = torch.manual_seed(42)#.to(torch_device)  # Seed generator to create the initial latent noise
 torch.cuda.manual_seed_all(42)
-n_samples = 200 #10000
+n_samples = args.end_iter #10000
 batch_size = 1
 use_json = True 
-CFG_scheduling = 'static'
-cads = False #True 
+CFG_scheduling = args.CFG_scheduling
 
 prompt_augmentation_ = None #"rand_numb_add"
-outdir = "memorized_images_negative_guidance_7_5" 
+outdir = args.outdir 
 
 if not os.path.exists(outdir):
     os.makedirs(outdir)
@@ -70,19 +137,29 @@ if not os.path.exists(outdir + "/Images/"):
 if not os.path.exists(outdir + "/Plots/"):
     os.makedirs(outdir + "/Plots/")
 
-
 if use_json == True:
 
-    text_laion = []
-    filenames= glob.glob("memorized_images/*.txt")
-    filenames.sort()
-    for filename in filenames:
-        f = open(filename, "r")
-        captions = f.read()
-        print(captions)
-        text_laion.append(captions)
-    
+    if exp == "sdv1_pretrained":
 
+
+        with open('sdv1_500_memorized.jsonl', 'r') as json_file:
+            json_list = list(json_file)
+        text_laion = []
+        
+        for json_str in json_list:
+            result = json.loads(json_str)        
+            text_laion.append(result)
+
+    elif exp == "200_memorized":
+
+        text_laion = []
+        filenames= glob.glob("memorized_images/*.txt")
+        filenames.sort()
+        for filename in filenames:
+            f = open(filename, "r")
+            captions = f.read()
+            print(captions)
+            text_laion.append(captions)
 
 def find_min_max_points(latents_init, text_embeddings):
     
