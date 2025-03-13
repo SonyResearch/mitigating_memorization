@@ -38,16 +38,31 @@ $ python3 generate_test_dataset_stp.py --pretrained_model_name_or_path ./sd-21-f
 
 ## Mitigating Memorization using Dynamic Transition Point Method
 
+To run the experiments on the pretrained SDv1.4 (scenario 4 in the paper) set ```--unet_path CompVis/stable-diffusion-v1-4``` and to run the experiments on the SDv1.4 finetuned on 200 duplicated prompts (scenario 3) set ```--unet_path checkpoint-20000/unet```. Similarly, ```--end_iter``` is 500 for the former and 200 for the latter given the sizes of the datasets. And ```--exp``` should be set to ```sdv1_pretrained``` or ```200_memorized``` based on the scenario you want to experiment on. 
+
 ```
-$ python3 generate_test_dataset_dtp.py 
+$ python3 generate_test_dataset_dtp.py --unet_path /path/to/unet/model --end_iter <200 or 500> --exp <sdv1_pretrained or 200_memorized>
 ```
 
 
 ## Mitigating Memorization using Opposite Guidance and Dynamic Transition Point Method
 
+You can run the experiments on opposite guidance and DTP method using the following commands. The arguments remains the same as earlier, based on the configuration you are interested in. 
+
 ```
-$ python3 generate_test_dataset_opposite_guidance.py 
+$ python3 generate_test_dataset_opposite_guidance.py --unet_path /path/to/unet/model --end_iter <200 or 500> --exp <sdv1_pretrained or 200_memorized>
 ```
+
+## Mitigating Memorization on the ImageNette Dataset
+
+To run the experiments on the Imagenetter dataset (scenario 2 in the paper), you can use the following command. To replicate results from the paper the transition point (```--guidance_change_step```) needs to be set at 600 or 700. 
+
+```
+$ python3 generate_test_dataset_stp.py --pretrained_model_name_or_path ./sd-21-finetuned_Imagenette/ --outdir Imagenette_SDv21_0_500_7_5 --guidance_change_step <600 or 700> --guidance_scale 0.0 --guidance_scale_later 7.5
+```
+
+
+
 
 If you use our work, please consider citing it. 
 ```
